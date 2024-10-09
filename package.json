@@ -15,7 +15,8 @@
     "nodemon": "^3.1.7"
   },
   "scripts": {
-    "start": "npx nodemon ./src/index.js"
+    "start": "npx nodemon ./src/index.js",
+    "ngrok": "ngrok http 3030"
   },
   "keywords": [],
   "author": "",
