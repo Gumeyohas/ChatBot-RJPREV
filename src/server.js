@@ -4,10 +4,12 @@ import express from 'express';
 import fetch from 'node-fetch'; // Importando o node-fetch
 
 const app = express();
-
 app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
+
+// Armazena o estado da conversa de cada usuário (em memória)
+const conversationState = {};
 
 // Endpoint de verificação do Webhook
 app.get('/webhook', (req, res) => {
@@ -26,72 +28,100 @@ app.get('/webhook', (req, res) => {
 
 // Endpoint que recebe mensagens
 app.post('/webhook', (req, res) => {
-    console.log('Webhook recebido:', req.body);
-    const body = req.body;
-  
-    if (body.object === 'whatsapp_business_account') {
-      body.entry.forEach(entry => {
-        const changes = entry.changes;
-        changes.forEach(change => {
-          const message = change.value.messages && change.value.messages[0];
-          if (message) {
-            console.log('Mensagem recebida:', message);
-            
-            const from = message.from; // Número de telefone do remetente
-            const text = message.text.body; // Conteúdo da mensagem
-  
-            // Chame a função para enviar uma resposta
-            handleIncomingMessage(from, text);
-          }
-        });
+  console.log('Webhook recebido:', req.body);
+  const body = req.body;
+
+  if (body.object === 'whatsapp_business_account') {
+    body.entry.forEach(entry => {
+      const changes = entry.changes;
+      changes.forEach(change => {
+        const message = change.value.messages && change.value.messages[0];
+        if (message) {
+          console.log('Mensagem recebida:', message);
+          
+          const from = message.from; // Número de telefone do remetente
+          const text = message.text.body; // Conteúdo da mensagem
+
+          // Chame a função para lidar com a mensagem recebida
+          handleIncomingMessage(from, text);
+        }
       });
-  
-      res.status(200).send('EVENT_RECEIVED');
-    } else {
-      res.sendStatus(404);
+    });
+
+    res.status(200).send('EVENT_RECEIVED');
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+// Função para lidar com mensagens recebidas
+const handleIncomingMessage = async (from, text) => {
+  let responseMessage = '';
+
+  // Verifica se o usuário já está em uma conversa
+  if (!conversationState[from]) {
+    // Se for a primeira mensagem, salva o estado e envia a mensagem de boas-vindas
+    conversationState[from] = { step: 'inicio' };
+    responseMessage = 'A Fundação de Previdência Complementar do Estado do Rio de Janeiro-RJPrev agradece seu contato. Nos informe seu assunto:\n 1- Suporte\n 2- Pagamento \n 3- Cancelamento';
+  } else {
+    // Se o usuário já está em uma conversa, trata com base no estado atual
+    const userState = conversationState[from];
+
+    if (userState.step === 'inicio') {
+      // Processa a escolha do usuário
+      if (text === '1') {
+        responseMessage = 'Você escolheu Suporte. Em que podemos ajudar?';
+        conversationState[from].step = 'suporte';
+      } else if (text === '2') {
+        responseMessage = 'Você escolheu Pagamento. Por favor, nos forneça mais detalhes.';
+        conversationState[from].step = 'pagamento';
+      } else if (text === '3') {
+        responseMessage = 'Você escolheu Cancelamento. Qual o motivo do cancelamento?';
+        conversationState[from].step = 'cancelamento';
+      } else {
+        responseMessage = 'Opção inválida. Por favor, escolha uma das opções: \n 1- Suporte\n 2- Pagamento \n 3- Cancelamento';
+      }
+    } else if (userState.step === 'suporte') {
+      responseMessage = 'Obrigado por fornecer detalhes de Suporte. Entraremos em contato em breve.';
+      conversationState[from].step = 'finalizado'; // Estado finalizado
+    } else if (userState.step === 'pagamento') {
+      responseMessage = 'Obrigado por fornecer detalhes sobre Pagamento. Entraremos em contato em breve.';
+      conversationState[from].step = 'finalizado';
+    } else if (userState.step === 'cancelamento') {
+      responseMessage = 'Lamentamos que queira cancelar. Entraremos em contato para mais detalhes.';
+      conversationState[from].step = 'finalizado';
     }
-  });
-  
-  // Função para lidar com mensagens recebidas
-  const handleIncomingMessage = async (from, text) => {
-    let responseMessage = '';
-  
-    // Aqui você pode implementar a lógica do seu chatbot
-    if (text.toLowerCase() === 'olá') {
-      responseMessage = 'Olá! Como posso ajudar você?';
-    } else {
-      responseMessage = 'Desculpe, não entendi sua mensagem.';
-    }
-  
-    // Enviar a resposta usando a função sendMessage
-    await sendMessage(from, responseMessage);
-  };
+  }
+
+  // Enviar a resposta usando a função sendMessage
+  await sendMessage(from, responseMessage);
+};
 
 const phone_number_id = 467167046473343;
 // Função para enviar mensagens
 const sendMessage = async (to, message) => {
-    const url = `https://graph.facebook.com/v13.0/${phone_number_id}/messages`;
-    const token = 'EAA0rRhfq43oBO67ZCacVJsrMM9Aa98n2Ie6YBIAdtHzANPDDiqFk5u2XMQrR0YNNZAbGzpf8cZCbfZBFIm9DXhLqC6pP7FP8lTxIEEufYlsFAOGhXw6wU5hfJqMCX1qcKbN7mrAjS7tRwau7gVBm7qo48muTjtSK85szspw3ZCqtZBt1CQ4Osvh7OePz3ZBtAFDhCrkcT3G1ZCGN7oDqmgZDZD'; // Substitua pelo seu token de acesso
-  
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messaging_product: 'whatsapp',
-          to: to,
-          text: { body: message }
-        })
-      });
-  
-      const data = await response.json();
-      console.log('Mensagem enviada:', data);
-    } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
-    }
-  };
-  
-  export default app;
+  const url = `https://graph.facebook.com/v13.0/${phone_number_id}/messages`;
+  const token = 'EAA0rRhfq43oBO2O1ZCLboUIv63Vdx0Hw3mD4EJ0SbIyTKz6TNcvqzm06CV8bzMs91PrgNsJHnrdttZACQjUS8vhY5NfRm9eWxqZAhRgDa6ZAAa4RRaTlABHkQiEmZCB3g31QR0gSaSn8W0H6ZBnpR6EKPZC84retDqgeuFlqfd1MLpZC6zQpJbq2zlReBn3ki0w40xIzav2EZCfYsN0uq2yZBzva5pLJUi'; // Substitua pelo seu token de acesso
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: to,
+        text: { body: message }
+      })
+    });
+
+    const data = await response.json();
+    console.log('Mensagem enviada:', data);
+  } catch (error) {
+    console.error('Erro ao enviar mensagem:', error);
+  }
+};
+
+export default app;
