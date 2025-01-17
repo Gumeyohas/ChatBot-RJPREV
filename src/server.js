@@ -16,48 +16,132 @@ const INACTIVITY_TIMEOUT = 15000; // 15 segundos
 
 const chatFlows = {
   inicio: {
-    mensagem: 'A Fundação de Previdência Complementar do Estado do Rio de Janeiro-RJPrev agradece seu contato. Nos informe seu assunto:\n1- Suporte\n2- Pagamento\n3- Cancelamento',
-    opcoes: { '1': 'suporte', '2': 'pagamento', '3': 'cancelamento' }
+    mensagem: 'A Fundação de Previdência Complementar do Estado do Rio de Janeiro-RJPrev agradece seu contato. Em que podemos ajudar? \n1- Cancelamento do plano\n2- Adesão ao plano\n3- Formulários\n4- Suporte site\n5- Simulador de aposentadoria\n6- Dúvidas sobre seguro\n7- Informações sobre o plano\n8- Dúvidas sobre o desconto',
+    opcoes: { '1': 'cancelamento_do_plano', '2': 'adesao_ao_plano', '3': 'formularios', '4': 'suporte_site', '5': 'simulador_aposentadoria', '6': 'duvidas_sobre_seguro', '7': 'informacoes_plano', '8': 'duvidas_desconto' }
   },
-  suporte: {
-    mensagem: 'Você escolheu Suporte. Escolha uma das opções abaixo:\n1- Problemas técnicos\n2- Dúvidas sobre cadastro\n3- Falar com um atendente\n4- Voltar',
-    opcoes: { '1': 'suporte_tecnico', '2': 'suporte_cadastro', '3': 'atendimento', '4': 'inicio' }
+  cancelamento_do_plano: {
+    mensagem: 'Você escolheu Cancelamento do plano. Você é um participante patrocinado? (explicar) \n1- Sim\n2- Não\n3- Voltar',
+    opcoes: { '1': 'participante_patrocinado', '2': 'nao_PP', '3': 'inicio' }
   },
-  suporte_tecnico: {
-    mensagem: 'Você escolheu Problemas técnicos. Nossa equipe está ciente e um atendente entrará em contato em breve.',
+  participante_patrocinado: {
+    mensagem: 'Aderiu de forma automática? \n1- Sim\n2- Não\n3- Voltar',
+    opcoes: { '1': 'forma_automatica', '2': 'nao_forma_automatica', '3': 'inicio' }
+  },
+  forma_automatica: {
+    mensagem: 'Solicitação ocorreu dentro de 120 dias? \n1- Sim\n2- Não\n3- Voltar',
+    opcoes: {'1': 'dentro_de_120_dias', '2': 'fora_do_prazo', '3': 'inicio'}
+  },
+  dentro_de_120_dias: {
+    mensagem: 'Segue o formulário e nos informe os dados bancários para devolução (Banco, Agência, Conta) que um de nossos atendentes entrará em contato em breve.\nhttps://rjprev.org.br/wp-content/uploads/2024/09/Formulario-de-Desligamento.pdf',
     final: true
   },
-  suporte_cadastro: {
-    mensagem: 'Você escolheu Dúvidas sobre cadastro. Envie sua dúvida e um atendente retornará em breve.',
+  adesao_ao_plano: {
+    mensagem: 'Você escolheu Adesão ao plano. Podemos solicitar que um de nossos consultores entre em contato?\n1- Sim\n2- Não\n3- Voltar',
+    opcoes: { '1': 'contato_consultores', '2': 'sem_consultores', '3': 'inicio' }
+  },
+  contato_consultores: {
+    mensagem: 'Nos informe nome completo, orgão, ID Funcional e celular para contato.',
     final: true
   },
-  suporte_atendente: {
-    mensagem: 'Você escolheu Falar com um atendente. Um atendente entrará em contato em breve.',
+  sem_consultores: {
+    mensagem: 'É participante patrocinado ou facultativo? \n1- Patrocinado\n2- Facultativo\n3- Voltar',
+    opcoes: { '1': 'formulario_participante_patrocinado', '2': 'formulario_participante_facultativo', '3': 'inicio' }
+  },
+  formulario_participante_patrocinado: {
+    mensagem: 'Segue formulário para Adesão de participante ativo patrocinado: https://rjprev.org.br/wp-content/uploads/2024/09/Formulario-de-Adesao-Ativo-Patrocinado.pdf', // Enviaremos sua segunda via em instantes.'
     final: true
   },
-  pagamento: {
-    mensagem: 'Você escolheu Pagamento. Escolha uma das opções abaixo:\n1- Ver detalhes do pagamento\n2- Emitir segunda via\n3- Outras dúvidas sobre pagamento\n4- Voltar',
-    opcoes: { '1': 'pagamento_detalhes', '2': 'pagamento_segunda_via', '3': 'pagamento_duvidas', '4': 'inicio' }
-  },
-  pagamento_detalhes: {
-    mensagem: 'Você escolheu Ver detalhes do pagamento. Por favor, nos informe seu nome completo, ID funcional, telefone para contato, o endereço completo com CEP por gentileza.',
+  formulario_participante_facultativo: {
+    mensagem: 'Segue formulário para Adesão de participante ativo facultativo: https://rjprev.org.br/wp-content/uploads/2024/09/Formulario-de-Adesao-Facultativo.pdf',
     final: true
   },
-  pagamento_segunda_via: {
-    mensagem: 'Você escolheu Emitir segunda via. Escolha uma das opções abaixo: \n1- Receber segunda via por Whatsapp \n2- Receber segunda via por e-mail\n3- Voltar',
-    opcoes: { '1': 'pagamento_whatsapp', '2': 'pagamento_email', '3': 'pagamento' }
+  formularios: {
+    mensagem: 'Qual seu plano?\n1- RJPREV-CD\n2- MUNICÍPIOS-CD\n3- Voltar',
+    opcoes: { '1': 'plano_rjprev_cd', '2': 'plano_municipios_cd', '3': 'inicio' }
   },
-  pagamento_whatsapp: {
-    mensagem: 'Em breve um atendentende entrará em contato e enviaremos sua segunda via.', // Enviaremos sua segunda via em instantes.'
+  plano_rjprev_cd: {
+    mensagem: 'Segue os formulários do plano RJPREV-CD:\n1- Inscrição de beneficiários: https://rjprev.org.br/wp-content/uploads/2024/09/formulario_inscricao_beneficiarios.pdf\n2- Alteração de Alíquota: https://rjprev.org.br/wp-content/uploads/2024/09/ALTERACAO-DE-ALIQUOTA.pdf\n3- Mudança de modalidade: https://rjprev.org.br/wp-content/uploads/2022/11/formulario_opcao_plano_modalidade_patrocinadores.pdf\n4- Tributação: https://rjprev.org.br/wp-content/uploads/2024/09/Formulario-de-Regime-de-Tributacao.pdf',
     final: true
   },
-  pagamento_email: {
-    mensagem: 'Informe seu melhor e-mail que um atendente entrará em contato e enviará sua segunda via em instantes. (Lembre-se de olhar o spam e o lixo eletrônico!)',
+  plano_municipios_cd: {
+    mensagem: 'Segue os formulários do plano MUNICIPIOS-CD:\n1- Inscrição de beneficiários: https://rjprev.org.br/wp-content/uploads/2024/09/formulario_inscricao_beneficiarios.pdf\n2- Alteração de Alíquota: https://rjprev.org.br/wp-content/uploads/2024/09/ALTERACAO-DE-ALIQUOTA.pdf\n3- Mudança de modalidade: https://rjprev.org.br/wp-content/uploads/2022/11/formulario_opcao_plano_modalidade_patrocinadores.pdf\n4- Tributação: https://rjprev.org.br/wp-content/uploads/2024/09/Formulario-de-Regime-de-Tributacao.pdf',
     final: true
   },
-  pagamento_duvidas: {
-    mensagem: 'Você escolheu Outras dúvidas sobre pagamento. Detalhe sua dúvida para que possamos ajudar e aguarde até o atendente entrar em contato.',
+  suporte_site: {
+    mensagem: 'Escolha uma das opções abaixo:\n1- Área do participante\n2- Extrato\n3- Rentabilidade\n4- Voltar',
+    opcoes: {'1': 'area_do_participante', '2': 'extrato', '3': 'rentabilidade', '4': 'inicio' }
+  },
+  area_do_participante: {
+    mensagem: 'Escolha uma das opções abaixo:\n1- Divergência de informações\n2- Problemas no acesso\n3- Voltar',
+    opcoes: {'1': 'divergencia_informacoes', '2': 'problemas_acesso', '3': 'inicio'}
+  },
+  divergencia_informacoes: {
+    mensagem: 'Informe o seu problema por gentileza e um atendente entrará em contato em breve.',
     final: true
+  },
+  problemas_acesso: {
+    mensagem: 'Informe o seu problema por gentileza e um atendente entrará em contato em breve.',
+    final: true
+  },
+  extrato: {
+    mensagem: 'Você pode conseguir o seu extrato na nossa Área do participante localizada no nosso site. \nhttp://webparticipante.rjprev.rj.gov.br/rjprev/webparticipante/Area/Acesso/Autenticacao/Login',
+    final: true
+  },
+  rentabilidade: {
+    mensagem: 'Você pode verificar a rentabilidade do plano no nosso site.\nhttps://rjprev.org.br/',
+    final: true
+  },
+  simulador_aposentadoria: {
+    mensagem: 'Acesse o simulador do plano RJPREV-CD: \nhttp://simulador.rjprev.rj.gov.br/ \nAcesse o simulador do plano Municipios-CD: \nhttp://simulador_municipios.rjprev.rj.gov.br/',
+    final: true
+  },
+  duvidas_sobre_seguro: {
+    mensagem: 'Já possui o seguro? (invalidez e Morte)\n1- Sim\n2- Não\n3- Voltar',
+    opcoes: {'1': 'sim_seguro', '2': 'informar_dados', '3': 'inicio'}
+  },
+  sim_seguro: {
+    mensagem: 'Escolha uma das opções abaixo: \n1- Pagamento\n2- Alteração no valor do seguro\n3- Cancelamento\n4- Outros\n5- Voltar',
+    opcoes: { '1': 'pagamento_seguro', '2': 'informar_dados', '3': 'formulario_desligamento'}
+  },
+  pagamento_seguro: {
+    mensagem: 'Em breve nossa equipe de atendimento entrará em contato.',
+    final: true
+  },
+  informar_dados: {
+    mensagem: 'Nos informe nome completo, ID Funcional, orgão e celular para que possamos solicitar que um de nossos consultores entre em contato?',
+    final: true
+  },
+  formulario_desligamento: {
+    mensagem: 'Segue o link para acesso ao formulário de desligamento do seguro: \nhttps://rjprev.org.br/wp-content/uploads/2024/09/Formulario-PAR.pdf\n É importante informar que ao preencher o formulário é preciso deixar os campos referentes aos valores de Capital Segurado e do Prêmio riscados ou zerados.',
+    final: true 
+  },
+  informacoes_plano: {
+    mensagem: 'Escolha uma das opções abaixo: \n1- Adesão Automática\n2- Requerimento de benefícios\n3-Fui exonerado, como proceder?\n4- Mudança de regime previdenciário\n5- Outros\n6- Voltar',
+    opcoes: { '1': 'adesao_automatica', '2': 'requerimento_de_beneficios', '3': 'exoneracao', '4': 'mudanca_de_regime', '5': 'direcionar_atendimento', '6': 'inicio' }
+  },
+  adesao_automatica: {
+    mensagem: 'texto a ser feito',
+    final: true
+  },
+  requerimento_de_beneficios: {
+    mensagem: 'Escolha uma das opções abaixo: \n1- Aposentadoria\n2- Pensão por morte\n3- Voltar',
+    opcoes: { '1': 'direcionar_atendimento', '2': 'direcionar_atendimento', '3': 'inicio' }
+  },
+  exoneracao: {
+    mensagem: 'Para adiantar o atendimento, por gentileza envie o documento da publicação da Exoneração no Diário Oficial. Em breve nossa equipe de atendimento entrará em contato.',
+    final: true
+  },
+  mudanca_de_regime: {
+    mensagem: 'texto pronto',
+    final: true
+  },
+  direcionar_atendimento: {
+    mensagem: 'Em breve nossa equipe de atendimento entrará em contato.',
+    final: true
+  },
+  duvidas_desconto: {
+    mensagem: 'Escolha uma das opções abaixo: \n1- Folha\n2- Boleto\n3- Débito\n4- Voltar',
+    opcoes: { '1': 'direcionar_atendimento', '2': 'direcionar_atendimento', '3': 'direcionar_atendimento', '4': 'inicio' }
   },
   cancelamento: {
     mensagem: 'Você escolheu Cancelamento. Escolha uma das opções abaixo:\n1- Informar motivo/problema\n2- Falar com um atendente\n3- Voltar',
